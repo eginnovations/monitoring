@@ -1,0 +1,36 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eginnovations
+rules:
+- apiGroups:
+  - "*"
+  resources: ["*"]
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs:
+  - "*"
+  verbs:
+  - "get"
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: eginnovations
+  namespace: default  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eginnovations
+roleRef:
+  apiGroup: rbac.authorization.k8s.io 
+  kind: ClusterRole
+  name: eginnovations
+subjects:
+- kind: ServiceAccount
+  name: eginnovations
+  namespace: default
+  
