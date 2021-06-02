@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: egagent
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: egagent
+  namespace: egagent
+---
+apiVersion: apps/v1
+kind: "DaemonSet"
+metadata:
+  namespace: egagent
+  name: egagent
+  labels:
+    app: egagent  
+spec:
+  selector:
+    matchLabels:
+      app: egagent 
+  template:
+    metadata:
+      labels:
+        app: egagent
+    spec:
+      volumes:
+      - name: var-run
+        hostPath:
+          path: /var/run
+      - name: process
+        hostPath:
+          path: /proc
+      - name: host-root
+        hostPath:
+          path: /
+      - name: btmmount
+        hostPath: 
+          path: /opt/egbtm
+          type: DirectoryOrCreate
+      #imagePullSecrets:
+      #- name: "agent_pull_secret_name"
+      containers:
+      - name: egagent
+        image: docker.io/eginnovations/agent:7.2.0
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        env:
+        - name: EG_MANAGER
+          value: ""
+        - name: EG_MANAGER_PORT
+          value: ""
+        - name: EG_MANAGER_SSL
+          value: ""
+        - name: JVM_MEMORY
+          value: "512"
+        - name: EG_AGENT_IDENTIFIER_ID
+          value: ""
+        - name: EG_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        volumeMounts:
+        - name: var-run
+          mountPath: /var/run
+        - name: process
+          mountPath: /media/proc
+        - name: host-root
+          mountPath: /mnt
+        - name: btmmount
+          mountPath: /opt/egbtm
+        
+      hostIPC: true
+      hostNetwork: true
+      hostPID: true
+      serviceAccountName: egagent
+
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: egagent-role
+rules:
+- nonResourceURLs:
+    - "/version"
+    - "/healthz"
+  verbs: ["get"]
+  apiGroups: []
+  resources: []
+- apiGroups: ["batch"]
+  resources:
+    - "jobs"
+    - "cronjobs"
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+    - "deployments"
+    - "replicasets"
+    - "ingresses"
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+    - "deployments"
+    - "replicasets"
+    - "daemonsets"
+    - "statefulsets"
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+    - "namespaces"
+    - "events"
+    - "services"
+    - "endpoints"
+    - "nodes"
+    - "pods"
+    - "replicationcontrollers"
+    - "componentstatuses"
+    - "resourcequotas"
+    - "persistentvolumes"
+    - "persistentvolumeclaims"
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+    - "endpoints"
+  verbs: ["create", "update", "patch"]
+- apiGroups: ["networking.k8s.io"]
+  resources:
+    - "ingresses"
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps.openshift.io"]
+  resources:
+    - "deploymentconfigs"
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["security.openshift.io"]
+  resourceNames: ["privileged"]
+  resources: ["securitycontextconstraints"]
+  verbs: ["use"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: egagent-role-binding
+  namespace: egagent
+subjects:
+- kind: ServiceAccount
+  name: egagent
+  namespace: egagent
+roleRef:
+  kind: ClusterRole
+  name: egagent-role
+  apiGroup: rbac.authorization.k8s.io
+---
