@@ -1,0 +1,94 @@
+{
+  "family": "eg-agent-task",
+  "containerDefinitions": [
+    {
+      "name": "egagent",
+      "image": "eginnovations/agent:7.2.0",
+      "cpu": 10,
+      "memory": 512,
+      "essential": true,
+      "mountPoints": [
+        {
+          "containerPath": "/var/run",
+          "sourceVolume": "var-run"
+        },
+        {
+          "containerPath": "/opt/egbtm",
+          "sourceVolume": "egbtm"
+        },
+        {
+          "containerPath": "/sys/fs/cgroup",
+          "sourceVolume": "cgroup"
+        },
+        {
+          "containerPath": "/media/proc",
+          "sourceVolume": "process"
+        },
+        {
+          "containerPath": "/mnt",
+          "sourceVolume": "host-root"
+        }
+      ],
+      "environment": [
+        {
+          "name": "EG_MANAGER",
+          "value": ""
+        },
+        {
+          "name": "EG_MANAGER_PORT",
+          "value": "443"
+        },
+        {
+          "name": "EG_MANAGER_SSL",
+          "value": "true"
+        },
+        {
+          "name": "JVM_MEMORY",
+          "value": "512"
+        },
+        {
+          "name": "EG_AGENT_IDENTIFIER_ID",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "pidMode": "host",
+  "networkMode": "host",
+  "ipcMode": "host",
+  "volumes": [
+    {
+      "name": "var-run",
+      "host": {
+        "sourcePath": "/var/run"
+      }
+    },
+    {
+      "name": "egbtm",
+      "host": {
+        "sourcePath": "/opt/egbtm"
+		}
+	 },
+     {
+      "name": "cgroup",
+      "host": {
+        "sourcePath": "/sys/fs/cgroup"
+		}
+	 },
+     {
+      "name": "host-root",
+      "host": {
+        "sourcePath": "/"
+		}
+	 },
+     {
+      "name": "process",
+      "host": {
+        "sourcePath": "/proc"
+		}
+	 }
+  ]
+}
