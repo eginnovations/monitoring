@@ -62,6 +62,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: NAMESPACES_TO_INCLUDE
+          value: "*"
+        #- name: NAMESPACES_TO_EXCLUDE
+          #value: "default"              
         volumeMounts:
         - name: var-run
           mountPath: /var/run
