@@ -1,7 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eg-infra-mon
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: eginnovations
+  namespace: eg-infra-mon
 rules:
 - apiGroups:
   - "*"
@@ -19,12 +25,13 @@ kind: ServiceAccount
 apiVersion: v1
 metadata:
   name: eginnovations
-  namespace: default  
+  namespace: eg-infra-mon
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: eginnovations
+  namespace: eg-infra-mon
 roleRef:
   apiGroup: rbac.authorization.k8s.io 
   kind: ClusterRole
@@ -32,5 +39,5 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: eginnovations
-  namespace: default
+  namespace: eg-infra-mon
   
