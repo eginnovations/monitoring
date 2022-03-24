@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -40,4 +41,4 @@ subjects:
 - kind: ServiceAccount
   name: eginnovations
   namespace: eg-infra-mon
-  
+---
